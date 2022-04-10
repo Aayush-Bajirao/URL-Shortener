@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from URL_shortner.myapp.models import LongToShort
+
+from .models import LongToShort
+
+admin.site.register(LongToShort)
