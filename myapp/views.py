@@ -1,16 +1,14 @@
+from multiprocessing import context
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import LongToShort
-
-
 
 def hello_world(request):
     return HttpResponse("Hello World!!")
 
 def home_page(request):
-
     context = {
-        "submitted" : False,         #dicticnory to append with index.html
+        "submitted" : False,        #dicticnory to append with index.html
         "error" : False,
     }
 
@@ -24,35 +22,40 @@ def home_page(request):
 
         try:
             obj = LongToShort(long_url = long_url, short_url = custom_name)        
-            obj.save()                  #Actually adding database to SQL through django
+            obj.save()              #Actually adding database to SQL through django
 
-            context["date"] = obj.date  #Date for link
+            context["date"] = obj.date                          #Date for link
             context["clicks"] = obj.clicks
             context["long_url"] = long_url
             context["short_url"] = request.build_absolute_uri() + custom_name
         except:
-            context["error"] = True
-        
+            context["error"] = True        
         
     return render(request, "index.html", context)
-
 
 def redirect_url(request, short_url):
     row = LongToShort.objects.filter(short_url = short_url)     #Filter for fetching row from database
     if len(row) == 0:                                           #Error handling
         return HttpResponse("No reponse")
     obj = row[0]
-    long_url = obj.long_url                                  #Accessing required column 
+    long_url = obj.long_url                                     #Accessing required column 
     obj.clicks = obj.clicks + 1   
-    obj.save()                        #row[1]==obj
+    obj.save()                                                  #row[1]==obj
     return redirect(long_url)                                   #Redirecting the link 
 
 
 def task_page(request):
-
     context = {
-        "my_name" : "Aayush",       #dicticnory to append with index.html 
-        "x" : 15
+        "my_name" : "Aayush",                                   #dicticnory to append with index.html      "x" : 15
     }
 
     return render(request, "task.html", context)
+
+def all_analytics(request):
+
+    rows = LongToShort.objects.all()
+    context = {
+        "rows" : rows
+    }
+
+    return render(request, "all-analytics.html", context)
