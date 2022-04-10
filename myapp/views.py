@@ -1,6 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponse
+from .models import LongToShort
+
+
 
 def hello_world(request):
     return HttpResponse("Hello World!!")
@@ -17,15 +20,16 @@ def home_page(request):
         long_url = data['longurl']
         custom_name = data['custom_name']
 
-        print(long_url)
-        print(custom_name)
         context["submitted"] = True
         context["long_url"] = long_url
         context["short_url"] = request.build_absolute_uri() + custom_name
-            
-    else:
-        print("User is not sending anything")
 
+        obj = LongToShort(long_url = long_url, short_url = custom_name)        
+        obj.save()                  #Actually adding database to SQL through django
+        
+        context["date"] = obj.date  #Date for link
+        context["clicks"] = obj.clicks
+        
     return render(request, "index.html", context)
 
 def task_page(request):
