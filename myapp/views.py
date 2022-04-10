@@ -11,24 +11,29 @@ def hello_world(request):
 def home_page(request):
 
     context = {
-        "submitted" : False         #dicticnory to append with index.html
+        "submitted" : False,         #dicticnory to append with index.html
+        "error" : False,
     }
 
     if request.method == 'POST':    #request.method tells about post or get
+        context["submitted"] = True
+
        # print(request.POST)        #request.POST   gets data given by user incase of POST
         data = request.POST
         long_url = data['longurl']
         custom_name = data['custom_name']
 
-        context["submitted"] = True
-        context["long_url"] = long_url
-        context["short_url"] = request.build_absolute_uri() + custom_name
+        try:
+            obj = LongToShort(long_url = long_url, short_url = custom_name)        
+            obj.save()                  #Actually adding database to SQL through django
 
-        obj = LongToShort(long_url = long_url, short_url = custom_name)        
-        obj.save()                  #Actually adding database to SQL through django
+            context["date"] = obj.date  #Date for link
+            context["clicks"] = obj.clicks
+            context["long_url"] = long_url
+            context["short_url"] = request.build_absolute_uri() + custom_name
+        except:
+            context["error"] = True
         
-        context["date"] = obj.date  #Date for link
-        context["clicks"] = obj.clicks
         
     return render(request, "index.html", context)
 
