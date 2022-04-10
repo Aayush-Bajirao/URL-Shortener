@@ -1,6 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from .models import LongToShort
 
 
@@ -36,6 +35,18 @@ def home_page(request):
         
         
     return render(request, "index.html", context)
+
+
+def redirect_url(request, short_url):
+    row = LongToShort.objects.filter(short_url = short_url)     #Filter for fetching row from database
+    if len(row) == 0:                                           #Error handling
+        return HttpResponse("No reponse")
+    obj = row[0]
+    long_url = obj.long_url                                  #Accessing required column 
+    obj.clicks = obj.clicks + 1   
+    obj.save()                        #row[1]==obj
+    return redirect(long_url)                                   #Redirecting the link 
+
 
 def task_page(request):
 
